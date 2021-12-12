@@ -10,7 +10,7 @@ import './App.css';
 function App() {
   return (
     <Router>
-      <div>
+      <div className='bg-dark'>
         <Navbar/>
         <Routes>
           <Route path="/" component={Trading} />

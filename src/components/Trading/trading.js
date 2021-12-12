@@ -39,12 +39,12 @@ const Trading = () => {
 
     return(
         <div>
-            <div className="card container mt-5" style={{width: "25rem"}}>
+            <div className="card container mt-5 bg-dark trading-card text-white" style={{width: "25rem"}}>
                 <div className="card-body">
                     <h3 className="card-title text-center">Metal Trading</h3>
                     <div className="d-flex my-4 justify-content-center">
-                        <div className="btn btn-primary" onClick={onBuyClick}>Buy</div>
-                        <div className="ms-2"><div className="btn btn-primary" onClick={onSellClick}>Sell</div></div>
+                        <div className="btn btn-light" onClick={onBuyClick}>Buy</div>
+                        <div className="ms-2"><div className="btn btn-light" onClick={onSellClick}>Sell</div></div>
                     </div>
                     <h4 className="card-title text-center">{state.isBuy ? "Buy" : "Sell"}</h4>
                     <div className='d-flex justify-content-between mx-5 my-3'  onChange={(e) => onMetalSelection(e.target.value)}>
@@ -68,7 +68,7 @@ const Trading = () => {
                     </div>
                     <h5 className="card-title">{"Total Amount: " + (state.metalsPrice[state.selectedMetal]*state.metalAmt) + " rs"}</h5>
                     <div className='d-flex justify-content-center my-4'>
-                        <button className="btn btn-primary" onClick={onSubmit}>Place order</button>
+                        <button className="btn btn-light" onClick={onSubmit}>Place order</button>
                     </div>
                 </div>
             </div>
