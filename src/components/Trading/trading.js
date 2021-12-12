@@ -42,25 +42,24 @@ const Trading = () => {
             <div className="card container mt-5" style={{width: "25rem"}}>
                 <div className="card-body">
                     <h3 className="card-title text-center">Metal Trading</h3>
-                    <div className="d-flex my-4">
-                        <a href="#" className="btn btn-primary" onClick={onBuyClick}>Buy</a>
-                        <div className="ms-2"><a href="#" className="btn btn-primary" onClick={onSellClick}>Sell</a></div>
+                    <div className="d-flex my-4 justify-content-center">
+                        <div className="btn btn-primary" onClick={onBuyClick}>Buy</div>
+                        <div className="ms-2"><div className="btn btn-primary" onClick={onSellClick}>Sell</div></div>
                     </div>
                     <h4 className="card-title text-center">{state.isBuy ? "Buy" : "Sell"}</h4>
-                    <div className="d-flex">
-                        <div class="dropdown my-4">
-                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                Select Metal
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <li><div class="dropdown-item cursor-pointer" onClick={() => onMetalSelection(platinum)}>{platinum}</div></li>
-                                <li><hr class="dropdown-divider" /></li>
-                                <li><div class="dropdown-item cursor-pointer"  onClick={() => onMetalSelection(gold)}>{gold}</div></li>
-                                <li><hr class="dropdown-divider" /></li>
-                                <li><div class="dropdown-item cursor-pointer"  onClick={() => onMetalSelection(silver)}>{silver}</div></li>
-                            </ul>
+                    <div className='d-flex justify-content-between mx-5 my-3'  onChange={(e) => onMetalSelection(e.target.value)}>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metal" id={platinum} value={platinum} checked={state.selectedMetal === platinum}/>
+                            <label class="form-check-label" for={platinum}>{platinum}</label>
                         </div>
-                        <div className="my-4 ms-4"><h4>{state.selectedMetal}</h4></div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metal" id={gold} value={gold} checked={state.selectedMetal === gold}/>
+                            <label class="form-check-label" for={gold}>{gold}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metal" id={silver} value={silver} checked={state.selectedMetal === silver}/>
+                        <label class="form-check-label" for={silver}>{silver}</label>
+                        </div>
                     </div>
                     <h4 className="card-title">{"Rate: " + state.metalsPrice[state.selectedMetal] + " rs/gm"}</h4>
                     <div class="input-group mb-3">
@@ -68,7 +67,9 @@ const Trading = () => {
                         <input type="number" value={state.metalAmt} min={0} class="form-control" id="inputGroupFile01" onChange={(e) => onAmtChange(e)}/>
                     </div>
                     <h5 className="card-title">{"Total Amount: " + (state.metalsPrice[state.selectedMetal]*state.metalAmt) + " rs"}</h5>
-                    <button className="btn btn-primary" onClick={onSubmit}>Place order</button>
+                    <div className='d-flex justify-content-center my-4'>
+                        <button className="btn btn-primary" onClick={onSubmit}>Place order</button>
+                    </div>
                 </div>
             </div>
         </div>
