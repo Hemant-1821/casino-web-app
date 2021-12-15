@@ -21,8 +21,8 @@ body {
   }
   
   /* Style the links inside the navigation bar */
-  .topnav a {
-      width: 100%;
+  .topnav div {
+    width: 100%;
     float: left;
     display: block;
     color: #f2f2f2;
@@ -31,12 +31,32 @@ body {
     text-decoration: none;
     font-size: 17px;
     border-bottom: 3px solid transparent;
+    cursor: pointer;
   }
   
-  .topnav a:hover {
-    border-bottom: 3px solid red;
+  .topnav div:hover {
+    border-bottom: 3px solid white;
   }
   
-  .topnav a.active {
-    border-bottom: 3px solid red;
+  .topnav div.active {
+    border-bottom: 3px solid white;
+  }
+
+  .purple {
+    background-color: #6f42c1;
+    border-color: #6f42c1;
+  }
+  .green {
+    background-color: green;
+    border-color: green;
+  }
+  .red {
+    background-color: red;
+    border-color: red;
+  }
+  .btn-width{
+    width: 7rem;
+  }
+  .amt-input{
+    width: 20rem;
   }
