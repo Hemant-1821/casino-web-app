@@ -6,18 +6,16 @@ import {
 } from "react-router-dom";
 import Trading from './components/Trading/trading';
 import './App.css';
+import Gaming from './components/Gaming/Gaming';
 
 function App() {
   return (
     <Router>
-      <div className='bg-dark'>
-        <Navbar/>
-        <Routes>
-          <Route path="/" component={Trading} />
-          <Route path="/game"></Route>
-        </Routes>
-      </div>
-      <Trading/>
+      <Navbar/>
+      <Routes>
+        <Route path="/" element={<Trading />} />
+        <Route path="/game" element={<Gaming />} />
+      </Routes>
     </Router>
   );
 }
