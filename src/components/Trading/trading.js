@@ -39,7 +39,7 @@ const Trading = () => {
 
     return(
         <div>
-            <div className="card container mt-5 bg-dark trading-card text-white" style={{width: "25rem"}}>
+            <div className="card container margin-top bg-dark trading-card text-white" style={{width: "25rem"}}>
                 <div className="card-body">
                     <h3 className="card-title text-center">Metal Trading</h3>
                     <div className="d-flex my-4 justify-content-center">

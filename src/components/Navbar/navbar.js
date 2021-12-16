@@ -2,7 +2,7 @@ import React from 'react';
 
 const navbar = () => {
     return(
-    <nav className="navbar background-dark justify-content-between">
+    <nav className="navbar fixed-top background-dark justify-content-between">
         <div className="container">
         <a className="navbar-brand text-white" href="/">CASINO</a>
         <div className="d-flex flex-row">

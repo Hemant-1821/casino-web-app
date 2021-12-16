@@ -37,7 +37,7 @@ const Gaming = () => {
 
     return(
         <div>
-            <div className="card container my-5 bg-dark trading-card text-white" style={{width: "35rem"}}>
+            <div className="card container margin-top bg-dark trading-card text-white px-4 mb-5" style={{width: "37rem"}}>
                 <div className="card-body">
                     <h3 className="card-title text-center">Gaming</h3>
                 </div>

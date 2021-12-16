@@ -7,6 +7,8 @@ import {
 import Trading from './components/Trading/trading';
 import './App.css';
 import Gaming from './components/Gaming/Gaming';
+import Login from './components/Auth/Login/Login';
+import Signup from './components/Auth/Signup/Singup';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Trading />} />
         <Route path="/game" element={<Gaming />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </Router>
   );
