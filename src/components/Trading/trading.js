@@ -1,4 +1,5 @@
 import React from 'react';
+import { axiosInstance } from '../../axios';
 
 const Trading = () => {
     const platinum = 'Platinum';
@@ -7,22 +8,30 @@ const Trading = () => {
 
     const [state, setState] = React.useState({
         isBuy: true,
-        price: 10,
         metalsPrice: {
-            [gold]: "10",
-            [silver]: "20",
-            [platinum]: "30", 
+            [gold]: undefined,
+            [silver]: undefined,
+            [platinum]: undefined, 
         },
         selectedMetal: gold,
         metalAmt: 0,
     });
 
-    const onBuyClick = () => {
-        setState({...state, isBuy: true});
-    };
+    React.useEffect(() => {
+        axiosInstance.get('/get_metal_rates.php').then((res) => {
+            setState({
+                ...state, 
+                metalsPrice: {
+                    [gold]: res.data.gold, 
+                    [silver]: res.data.silver, 
+                    [platinum]: res.data.platinum
+                }
+            });
+        })
+    } ,[]);
 
-    const onSellClick = () => {
-        setState({...state, isBuy: false});
+    const onBuyOrSellClick = (isBuy) => {
+        setState({...state, isBuy});
     };
 
     const onMetalSelection = (metal) => {
@@ -34,7 +43,22 @@ const Trading = () => {
     }
 
     const onSubmit = () => {
-        console.log(state);
+        if(state.metalAmt > 0) {
+            axiosInstance.post(
+                '/place_metal_order.php', 
+                { 
+                    type: state.isBuy ? 'Buy' : 'Sell', 
+                    metal: state.selectedMetal, 
+                    rate: state.metalsPrice[state.selectedMetal], 
+                    weight: state.metalAmt 
+                },
+                { headers: { 'Content-Type': 'application/json' } },
+            ).then((res) => {
+                console.log(res);
+            }).catch(err => console.log(err));
+        } else {
+            console.log('Not valid!');
+        }
     }
 
     return(
@@ -43,8 +67,8 @@ const Trading = () => {
                 <div className="card-body">
                     <h3 className="card-title text-center">Metal Trading</h3>
                     <div className="d-flex my-4 justify-content-center">
-                        <div className="btn btn-light" onClick={onBuyClick}>Buy</div>
-                        <div className="ms-2"><div className="btn btn-light" onClick={onSellClick}>Sell</div></div>
+                        <div className="btn btn-light" onClick={() => onBuyOrSellClick(true)}>Buy</div>
+                        <div className="ms-2"><div className="btn btn-light" onClick={() => onBuyOrSellClick(false)}>Sell</div></div>
                     </div>
                     <h4 className="card-title text-center">{state.isBuy ? "Buy" : "Sell"}</h4>
                     <div className='d-flex justify-content-between mx-5 my-3'  onChange={(e) => onMetalSelection(e.target.value)}>

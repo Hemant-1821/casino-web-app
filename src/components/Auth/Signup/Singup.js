@@ -1,6 +1,12 @@
 import React from 'react';
 
 const Signup = () => {
+
+    const onPhoneInput = (e) => {
+        if (e.target.value.length > e.target.maxLength)
+            e.target.value = e.target.value.slice(0, e.target.maxLength);
+    };
+
     return(
         <div className='margin-top'>
             <div className="py-3 mb-5 card container bg-dark trading-card text-white" style={{width: "25rem"}}>
@@ -13,7 +19,7 @@ const Signup = () => {
                         </div>
                         <div class="my-2">
                             <label for="exampleInputEmail1" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
+                            <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" onInput={onPhoneInput} maxlength="10"/>
                         </div>
                         <div class="my-2">
                             <label for="exampleInputEmail1" class="form-label">Email address</label>
