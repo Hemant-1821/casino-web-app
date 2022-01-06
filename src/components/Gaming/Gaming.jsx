@@ -41,7 +41,9 @@ function Gaming(props) {
   };
 
   const socket = React.useRef();
-  socket.current = io("https://casino-app-server.herokuapp.com/");
+  socket.current = io("https://casino-app-server.herokuapp.com", {
+    transports: ["websocket", "polling", "flashsocket"],
+  });
 
   React.useEffect(() => {
     socket.current.emit("message", "Hello");
