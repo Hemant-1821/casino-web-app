@@ -20,6 +20,9 @@ const navbar = (props) => {
             <a className="nav-link text-white" href="/game">
               Play Game
             </a>
+            <a className="nav-link text-white" href="/wallet">
+              Wallet
+            </a>
             <div
               role="menuitem"
               tabIndex={0}

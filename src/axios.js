@@ -1,5 +1,8 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL: "https://casino-app-server.herokuapp.com/",
+  baseURL:
+    process.env.REACT_APP_ENV === "LOCAL"
+      ? process.env.REACT_APP_BACKEND_LOCAL
+      : process.env.REACT_APP_BACKEND_PROD,
 });

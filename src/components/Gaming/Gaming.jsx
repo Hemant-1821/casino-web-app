@@ -41,9 +41,14 @@ function Gaming(props) {
   };
 
   const socket = React.useRef();
-  socket.current = io("https://casino-app-server.herokuapp.com", {
-    transports: ["websocket", "polling", "flashsocket"],
-  });
+  socket.current = io(
+    process.env.REACT_APP_ENV === "LOCAL"
+      ? process.env.REACT_APP_BACKEND_LOCAL
+      : process.env.REACT_APP_BACKEND_PROD,
+    {
+      transports: ["websocket", "polling", "flashsocket"],
+    }
+  );
 
   React.useEffect(() => {
     socket.current.emit("message", "Hello");
