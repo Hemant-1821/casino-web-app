@@ -91,7 +91,7 @@ function Wallet(props) {
         style={{ width: "65rem" }}
       >
         <div className="card-body">
-          <div className="h1 text-center">Wallet</div>
+          <div className="h1 text-center pe-5">Wallet</div>
           <div className="d-flex mt-5">
             <div
               className="d-flex flex-column align-items-center"

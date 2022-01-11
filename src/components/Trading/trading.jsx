@@ -1,12 +1,12 @@
-import React from 'react';
-import { axiosInstance } from '../../axios';
+import React from "react";
+import { axiosInstance } from "../../axios";
 
 function Trading() {
-  const platinum = 'Platinum';
-  const gold = 'Gold';
-  const silver = 'Silver';
+  const platinum = "platinum";
+  const gold = "gold";
+  const silver = "silver";
 
-  const [state, setState] = React.useState({
+  const initialState = {
     isBuy: true,
     metalsPrice: {
       [gold]: undefined,
@@ -15,20 +15,49 @@ function Trading() {
     },
     selectedMetal: gold,
     metalAmt: 0,
-  });
+    availableBal: undefined,
+    totalHoldings: {
+      [gold]: undefined,
+      [silver]: undefined,
+      [platinum]: undefined,
+    },
+  };
 
-  React.useEffect(() => {
-    // axiosInstance.get("/get_metal_rates.php").then((res) => {
-    //   setState({
-    //     ...state,
-    //     metalsPrice: {
-    //       [gold]: res.data.gold,
-    //       [silver]: res.data.silver,
-    //       [platinum]: res.data.platinum,
-    //     },
-    //   });
-    // });
-  }, []);
+  const [state, setState] = React.useState(initialState);
+  const [runUseEffect, setRunUseEffect] = React.useState(false);
+
+  React.useEffect(async () => {
+    const metalPrices = await axiosInstance
+      .get("/trading/price")
+      .then((res) => {
+        return {
+          [gold]: res.data.gold,
+          [silver]: res.data.silver,
+          [platinum]: res.data.platinum,
+        };
+      });
+
+    await axiosInstance
+      .get("/user", {
+        params: {
+          userId: localStorage.getItem("userId"),
+        },
+      })
+      .then((resp) => {
+        setState({
+          ...state,
+          metalAmt: 0,
+          metalsPrice: { ...metalPrices },
+          availableBal: resp.data.user.wallet.totalAmt,
+          totalHoldings: {
+            [gold]: resp.data.user.metals.gold,
+            [silver]: resp.data.user.metals.silver,
+            [platinum]: resp.data.user.metals.platinum,
+          },
+        });
+      });
+    setRunUseEffect(false);
+  }, [runUseEffect]);
 
   const onBuyOrSellClick = (isBuy) => {
     setState({ ...state, isBuy });
@@ -43,24 +72,32 @@ function Trading() {
   };
 
   const onSubmit = () => {
-    if (state.metalAmt > 0) {
+    if (
+      (state.metalAmt > 0 &&
+        state.isBuy &&
+        state.metalsPrice[state.selectedMetal] * state.metalAmt <=
+          state.availableBal) ||
+      (!state.isBuy &&
+        state.metalAmt <= state.totalHoldings[state.selectedMetal])
+    ) {
       axiosInstance
         .post(
-          '/place_metal_order.php',
+          "/trading/order",
           {
-            type: state.isBuy ? 'Buy' : 'Sell',
+            type: state.isBuy ? "Buy" : "Sell",
             metal: state.selectedMetal,
             rate: state.metalsPrice[state.selectedMetal],
             weight: state.metalAmt,
+            userId: localStorage.getItem("userId"),
           },
-          { headers: { 'Content-Type': 'application/json' } },
+          { headers: { "Content-Type": "application/json" } }
         )
         .then((res) => {
-          console.log(res);
+          setRunUseEffect(true);
         })
         .catch((err) => console.log(err));
     } else {
-      console.log('Not valid!');
+      console.log("Not valid!");
     }
   };
 
@@ -68,10 +105,13 @@ function Trading() {
     <div>
       <div
         className="card container margin-top bg-dark trading-card text-white"
-        style={{ width: '25rem' }}
+        style={{ width: "25rem" }}
       >
         <div className="card-body">
           <h3 className="card-title text-center">Metal Trading</h3>
+          <div className="p mt-4">
+            {"Available Balance: ₹" + state.availableBal}
+          </div>
           <div className="d-flex my-4 justify-content-center">
             <div
               role="button"
@@ -95,8 +135,13 @@ function Trading() {
             </div>
           </div>
           <h4 className="card-title text-center">
-            {state.isBuy ? 'Buy' : 'Sell'}
+            {state.isBuy ? "Buy" : "Sell"}
           </h4>
+          <div className="p mt-4">
+            {`Current holdings of ${state.selectedMetal} : ${
+              state.totalHoldings[state.selectedMetal]
+            } gms`}
+          </div>
           <div
             className="d-flex justify-content-between mx-5 my-3"
             onChange={(e) => onMetalSelection(e.target.value)}
@@ -142,7 +187,7 @@ function Trading() {
             </div>
           </div>
           <h4 className="card-title">
-            {`Rate: ${state.metalsPrice[state.selectedMetal]} rs/gm`}
+            {`Rate: ${state.metalsPrice[state.selectedMetal]} ₹/gm`}
           </h4>
           <div className="input-group mb-3">
             <label htmlFor="inputGroupFile01" className="input-group-text">
@@ -160,7 +205,7 @@ function Trading() {
           <h5 className="card-title">
             {`Total Amount: ${
               state.metalsPrice[state.selectedMetal] * state.metalAmt
-            } rs`}
+            } ₹`}
           </h5>
           <div className="d-flex justify-content-center my-4">
             <button type="button" className="btn btn-light" onClick={onSubmit}>
