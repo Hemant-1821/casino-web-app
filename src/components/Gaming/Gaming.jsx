@@ -1,7 +1,8 @@
-import React from "react";
-import Countdown from "react-countdown";
-import { io } from "socket.io-client";
+import React, { useRef, useState } from "react";
 import Rules from "./Rules/Rules";
+import Clock from "react-live-clock";
+import { useTimer } from "use-timer";
+import CountdownTimer from "./Countdown";
 
 function Gaming(props) {
   const ccon = "CCON";
@@ -11,6 +12,7 @@ function Gaming(props) {
   const green = "GREEN";
   const purple = "PURPLE";
   const red = "RED";
+  const firstRun = useRef(0);
 
   const [state, setState] = React.useState({
     balance: "120",
@@ -22,7 +24,7 @@ function Gaming(props) {
     userId: localStorage.getItem("userId") || props.userId,
     startTimer: false,
   });
-  const [roomMembers, setRoomMembers] = React.useState(0);
+  // const [roomMembers, setRoomMembers] = React.useState(0);
 
   const onSlotSelect = (slot) => {
     setState({ ...state, selectedSlot: slot });
@@ -40,49 +42,64 @@ function Gaming(props) {
     setState({ ...state, number });
   };
 
-  const socket = React.useRef();
-  socket.current = io(
-    process.env.REACT_APP_ENV === "LOCAL"
-      ? process.env.REACT_APP_BACKEND_LOCAL
-      : process.env.REACT_APP_BACKEND_PROD,
-    {
-      transports: ["websocket", "polling", "flashsocket"],
-    }
-  );
+  // const socket = React.useRef();
+  // socket.current = io(
+  //   process.env.REACT_APP_ENV === "LOCAL"
+  //     ? process.env.REACT_APP_BACKEND_LOCAL
+  //     : process.env.REACT_APP_BACKEND_PROD,
+  //   {
+  //     transports: ["websocket", "polling", "flashsocket"],
+  //   }
+  // );
+
+  // React.useEffect(() => {
+  // socket.current.emit("message", "Hello");
+  // socket.current.emit("join-room", {
+  //   room: state.selectedSlot,
+  //   id: localStorage.getItem("userId"),
+  // });
+  // }, [state.selectedSlot]);
+
+  // socket.current.on("roomMessage", (args) => {
+  //   console.log("message", args);
+  // });
+  // socket.current.on("roomMembersCount", (count) => {
+  //   console.log("Count", count);
+  //   if (count === 3) {
+  //     setState({ ...state, showTimer: !state.showTimer });
+  //   }
+  //   setRoomMembers(count);
+  // });
+
+  const [propsTime, setPropsTimer] = useState({
+    time: undefined,
+    type: undefined,
+  });
+  const [runUseEffect, setRunUseEffect] = useState(true);
 
   React.useEffect(() => {
-    socket.current.emit("message", "Hello");
-    socket.current.emit("join-room", {
-      room: state.selectedSlot,
-      id: localStorage.getItem("userId"),
-    });
-  }, [state.selectedSlot]);
+    const d = new Date();
+    const hours = d.getHours();
+    const min = d.getMinutes();
+    const sec = d.getSeconds();
+    const date = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
+    const refNo =
+      year.toString() +
+      month.toString().padStart(2, "0") +
+      date.toString().padStart(2, "0") +
+      (hours * 60 + min).toString().padStart(4, "0");
+    setState({ ...state, refNo });
+    setPropsTimer(
+      sec < 50
+        ? { time: 50 - sec, type: "betting" }
+        : { time: 60 - sec, type: "waiting" }
+    );
+  }, [runUseEffect]);
 
-  socket.current.on("roomMessage", (args) => {
-    console.log("message", args);
-  });
-  socket.current.on("roomMembersCount", (count) => {
-    console.log("Count", count);
-    if (count === 3) {
-      setState({ ...state, showTimer: !state.showTimer });
-    }
-    setRoomMembers(count);
-  });
-
-  const Completionist = () => <span>You are good to go!</span>;
-
-  const renderer = ({ hours, minutes, seconds, completed }) => {
-    if (completed) {
-      // Render a completed state
-      return <Completionist />;
-    } else {
-      // Render a countdown
-      return (
-        <span>
-          {"0" + minutes}:{seconds === 0 ? "00" : seconds}
-        </span>
-      );
-    }
+  const onTimesup = () => {
+    setRunUseEffect(!runUseEffect);
   };
 
   return (
@@ -155,18 +172,24 @@ function Gaming(props) {
             {grasy}
           </div>
         </div>
+        <div className="d-flex flex-row-reverse justify-content-between align-items-center">
+          <p>Ref No: {state.refNo}</p>
+        </div>
         <div className="d-flex flex-row-reverse justify-content-between align-items-center mb-3">
-          <div className="">{`Members: ${roomMembers}`}</div>
+          {propsTime.type === "betting" && (
+            <div>
+              Betting time left:{" "}
+              <CountdownTimer onTimesup={onTimesup} duration={propsTime.time} />
+            </div>
+          )}
+          {propsTime.type === "waiting" && (
+            <div>
+              Waiting time left:{" "}
+              <CountdownTimer onTimesup={onTimesup} duration={propsTime.time} />
+            </div>
+          )}
         </div>
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="">{`Reference No: ${state.refNo}`}</div>
-          <div className="">
-            {!state.showTimer && `Count down: 03:00`}
-            {state.showTimer && (
-              <Countdown date={Date.now() + 180000} renderer={renderer} />
-            )}
-          </div>
-        </div>
+        {/* <Clock format={"HH:mm:ss"} ticking={true} timezone={"Asia/Kolkata"} /> */}
         <div className="d-flex justify-content-between mx-5 mb-4">
           <button
             type="button"
@@ -273,13 +296,18 @@ function Gaming(props) {
           />
         </div>
         <div className="d-flex mx-auto">
-          <button type="button" className="btn btn-light btn-width me-2">
+          <button
+            type="button"
+            className="btn btn-light btn-width me-2"
+            disabled={propsTime.type === "waiting"}
+          >
             Confirm
           </button>
           <button
             type="button"
             className="btn btn-light btn-width"
             onClick={() => onAmtClick(0)}
+            disabled={propsTime.type === "waiting"}
           >
             Clear
           </button>
