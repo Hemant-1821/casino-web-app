@@ -1,8 +1,7 @@
 import React, { useRef, useState } from "react";
 import Rules from "./Rules/Rules";
-import Clock from "react-live-clock";
-import { useTimer } from "use-timer";
 import CountdownTimer from "./Countdown";
+import { axiosInstance } from "../../axios";
 
 function Gaming(props) {
   const ccon = "CCON";
@@ -12,13 +11,12 @@ function Gaming(props) {
   const green = "GREEN";
   const purple = "PURPLE";
   const red = "RED";
-  const firstRun = useRef(0);
 
   const [state, setState] = React.useState({
-    balance: "120",
-    refNo: "20211207123",
+    balance: undefined,
+    refNo: undefined,
     selectedSlot: dicor,
-    selectedColor: red,
+    selectedColor: undefined,
     amt: 1000,
     number: 3,
     userId: localStorage.getItem("userId") || props.userId,
@@ -38,9 +36,15 @@ function Gaming(props) {
     setState({ ...state, amt });
   };
 
+  const onAmtChange = (e) => {
+    setState({ ...state, amt: e.target.value });
+  };
+
   const onNumberClick = (number) => {
     setState({ ...state, number });
   };
+
+  const onConfirm = () => {};
 
   // const socket = React.useRef();
   // socket.current = io(
@@ -77,7 +81,17 @@ function Gaming(props) {
   });
   const [runUseEffect, setRunUseEffect] = useState(true);
 
-  React.useEffect(() => {
+  React.useEffect(async () => {
+    let availBal = undefined;
+    await axiosInstance
+      .get("/user", {
+        params: {
+          userId: localStorage.getItem("userId"),
+        },
+      })
+      .then((resp) => {
+        availBal = resp.data.user.wallet.totalAmt;
+      });
     const d = new Date();
     const hours = d.getHours();
     const min = d.getMinutes();
@@ -90,7 +104,7 @@ function Gaming(props) {
       month.toString().padStart(2, "0") +
       date.toString().padStart(2, "0") +
       (hours * 60 + min).toString().padStart(4, "0");
-    setState({ ...state, refNo });
+    setState({ ...state, refNo, balance: availBal });
     setPropsTimer(
       sec < 50
         ? { time: 50 - sec, type: "betting" }
@@ -293,6 +307,7 @@ function Gaming(props) {
             className="form-control amt-input"
             aria-label="amount"
             aria-describedby="basic-addon1"
+            onChange={onAmtChange}
           />
         </div>
         <div className="d-flex mx-auto">
@@ -300,6 +315,7 @@ function Gaming(props) {
             type="button"
             className="btn btn-light btn-width me-2"
             disabled={propsTime.type === "waiting"}
+            onClick={onConfirm}
           >
             Confirm
           </button>

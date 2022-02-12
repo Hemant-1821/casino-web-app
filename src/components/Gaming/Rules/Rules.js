@@ -10,7 +10,7 @@ const Rules = () => {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-dark">
-                    <div>1. Never Play this game.</div>
+                    <div>1. Play this game.</div>
                     <div>2. Follow rule one.</div>
                 </div>
                 <div class="modal-footer">
