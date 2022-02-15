@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { axiosInstance } from "../../../axios";
 
 function Signup(props) {
@@ -23,10 +24,10 @@ function Signup(props) {
     setState({ ...state, [e.target.id]: e.target.value });
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     if (state.email && state.password && state.name && state.phone) {
-      axiosInstance
+      await axiosInstance
         .post("/register", {
           name: state.name,
           phone: state.phone,
@@ -36,15 +37,15 @@ function Signup(props) {
         .then((res) => {
           const resObj = res.data;
           if (resObj.resCode === 200) {
-            propsSetState(resObj.id);
+            propsSetState(resObj.user._id);
             setRedirect(true);
           }
           if (resObj.resCode === 404) {
-            setError(true);
+            toast.error("Something went wrong please try again!");
           }
         });
     } else {
-      console.log("error occured!");
+      toast.error("Please provide all fields!");
     }
   };
 

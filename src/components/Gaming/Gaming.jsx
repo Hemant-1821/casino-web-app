@@ -1,8 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import Rules from "./Rules/Rules";
 import CountdownTimer from "./Countdown";
 import { axiosInstance } from "../../axios";
 import { toast } from "react-toastify";
+import Results from "./Results";
 
 function Gaming(props) {
   const ccon = "CCON";
@@ -226,6 +227,9 @@ function Gaming(props) {
     }
   }, [state.selectedSlot]);
 
+  const [fetchResults, setfetchResults] = useState(false);
+  const [results, setResults] = useState({});
+
   const onTimesup = () => {
     if (propsTime.type === "betting") {
       setBtnDisabled({
@@ -234,6 +238,9 @@ function Gaming(props) {
         [pola]: true,
         [grasy]: true,
       });
+      setTimeout(() => {
+        setfetchResults(!fetchResults);
+      }, 5000);
     } else {
       setBtnDisabled({
         [ccon]: false,
@@ -245,10 +252,17 @@ function Gaming(props) {
     setRunUseEffect(!runUseEffect);
   };
 
+  React.useEffect(async () => {
+    await axiosInstance.get("/results").then((resp) => {
+      setResults({ ...resp.data.results });
+      // toast.info("Result for last game has been declared!");
+    });
+  }, [fetchResults]);
+
   return (
     <div>
       <div
-        className="card container margin-top bg-dark trading-card text-white px-4 mb-5"
+        className="card container margin-top bg-dark trading-card text-white px-4 mb-4"
         style={{ width: "37rem" }}
       >
         <div className="card-body">
@@ -540,8 +554,9 @@ function Gaming(props) {
           {state.number}
         </div>
       </div>
+      <Results results={results} />
     </div>
   );
 }
 
-export default Gaming;
+export default React.memo(Gaming);

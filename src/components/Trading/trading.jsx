@@ -1,4 +1,5 @@
 import React from "react";
+import { toast } from "react-toastify";
 import { axiosInstance } from "../../axios";
 
 function Trading() {
@@ -27,6 +28,10 @@ function Trading() {
   const [runUseEffect, setRunUseEffect] = React.useState(false);
 
   React.useEffect(async () => {
+    if (!localStorage.getItem("userId")) {
+      toast.error("Undefined user id. Please try re logging In");
+      return;
+    }
     const metalPrices = await axiosInstance
       .get("/trading/price")
       .then((res) => {
