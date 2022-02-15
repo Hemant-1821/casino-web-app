@@ -13,6 +13,9 @@ import Login from "./components/Auth/Login/Login";
 import Signup from "./components/Auth/Signup/Singup";
 import Wallet from "./components/Wallet/Wallet";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function App() {
   const [state, setState] = React.useState({ userId: undefined });
 
@@ -27,57 +30,60 @@ function App() {
   };
 
   return (
-    <Router>
-      <Navbar userId={localStorage.getItem("userId")} logout={removeLocal} />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            !localStorage.getItem("userId") && !state.userId ? (
-              <Navigate to="/Login" />
-            ) : (
-              <Trading />
-            )
-          }
-        />
-        <Route
-          path="/game"
-          element={
-            !localStorage.getItem("userId") ? <Navigate to="/" /> : <Gaming />
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            !localStorage.getItem("userId") && !state.userId ? (
-              <Login setState={(userId) => setLocal(userId)} />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            !localStorage.getItem("userId") && !state.userId ? (
-              <Signup setState={(userId) => setLocal(userId)} />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/wallet"
-          element={
-            localStorage.getItem("userId") ? (
-              <Wallet />
-            ) : (
-              <Navigate to="/Login" />
-            )
-          }
-        />
-      </Routes>
-    </Router>
+    <>
+      <Router>
+        <Navbar userId={localStorage.getItem("userId")} logout={removeLocal} />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              !localStorage.getItem("userId") && !state.userId ? (
+                <Navigate to="/Login" />
+              ) : (
+                <Trading />
+              )
+            }
+          />
+          <Route
+            path="/game"
+            element={
+              !localStorage.getItem("userId") ? <Navigate to="/" /> : <Gaming />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              !localStorage.getItem("userId") && !state.userId ? (
+                <Login setState={(userId) => setLocal(userId)} />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              !localStorage.getItem("userId") && !state.userId ? (
+                <Signup setState={(userId) => setLocal(userId)} />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/wallet"
+            element={
+              localStorage.getItem("userId") ? (
+                <Wallet />
+              ) : (
+                <Navigate to="/Login" />
+              )
+            }
+          />
+        </Routes>
+      </Router>
+      <ToastContainer />
+    </>
   );
 }
 

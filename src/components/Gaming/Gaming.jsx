@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react";
 import Rules from "./Rules/Rules";
 import CountdownTimer from "./Countdown";
 import { axiosInstance } from "../../axios";
+import { toast } from "react-toastify";
+import Clock from "react-live-clock";
 
 function Gaming(props) {
   const ccon = "CCON";
@@ -15,12 +17,19 @@ function Gaming(props) {
   const [state, setState] = React.useState({
     balance: undefined,
     refNo: undefined,
-    selectedSlot: dicor,
+    selectedSlot: ccon,
     selectedColor: undefined,
-    amt: 1000,
-    number: 3,
+    amt: 0,
+    number: undefined,
     userId: localStorage.getItem("userId") || props.userId,
     startTimer: false,
+  });
+
+  const [btnDisabled, setBtnDisabled] = useState({
+    [ccon]: true,
+    [dicor]: true,
+    [pola]: true,
+    [grasy]: true,
   });
   // const [roomMembers, setRoomMembers] = React.useState(0);
 
@@ -44,7 +53,40 @@ function Gaming(props) {
     setState({ ...state, number });
   };
 
-  const onConfirm = () => {};
+  const onConfirm = async () => {
+    if (!state.selectedColor && !state.number) {
+      toast.dark("Please select a number or color");
+      return;
+    }
+    const totalAmt =
+      (!!state.selectedColor ? state.amt : 0) +
+      (!!state.number ? state.amt : 0);
+    if (totalAmt === 0) {
+      toast.dark("Amount should be greater than 0");
+      return;
+    }
+    await axiosInstance
+      .post("/gaming/bet", {
+        refNo: state.refNo,
+        roomName: state.selectedSlot,
+        userId: localStorage.getItem("userId"),
+        color: state.selectedColor,
+        number: state.number,
+        colorAmt: !!state.selectedColor ? state.amt : undefined,
+        numberAmt: !!state.number ? state.amt : undefined,
+      })
+      .then((res) => {
+        setBtnDisabled({
+          ...btnDisabled,
+          [state.selectedSlot]: true,
+        });
+        console.log(res);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error("Something went wrong please try again!!");
+      });
+  };
 
   // const socket = React.useRef();
   // socket.current = io(
@@ -112,7 +154,78 @@ function Gaming(props) {
     );
   }, [runUseEffect]);
 
+  React.useEffect(async () => {
+    console.log("in useEfffect", propsTime.type);
+    const d = new Date();
+    const hours = d.getHours();
+    const min = d.getMinutes();
+    const sec = d.getSeconds();
+    const date = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
+    const refNo =
+      year.toString() +
+      month.toString().padStart(2, "0") +
+      date.toString().padStart(2, "0") +
+      (hours * 60 + min).toString().padStart(4, "0");
+    if (sec < 50) {
+      // betting
+      await axiosInstance
+        .post("/Game", {
+          refNo,
+        })
+        .then((resp) => {
+          const gameBol = resp.data.bol;
+          const gameState = {
+            [ccon]: false,
+            [dicor]: false,
+            [pola]: false,
+            [grasy]: false,
+          };
+          if (gameBol) {
+            const game = resp.data.game;
+            game.CCON.forEach((room) => {
+              if (room.userId === localStorage.getItem("userId")) {
+                gameState[ccon] = true;
+              }
+            });
+            game.DICOR.forEach((room) => {
+              if (room.userId === localStorage.getItem("userId")) {
+                gameState[dicor] = true;
+              }
+            });
+            game.POLA.forEach((room) => {
+              if (room.userId === localStorage.getItem("userId")) {
+                gameState[pola] = true;
+              }
+            });
+            game.GRASY.forEach((room) => {
+              if (room.userId === localStorage.getItem("userId")) {
+                gameState[grasy] = true;
+              }
+            });
+          }
+          setBtnDisabled({ ...gameState });
+        });
+    }
+  }, [state.selectedSlot]);
+
   const onTimesup = () => {
+    if (propsTime.type === "betting") {
+      setBtnDisabled({
+        [ccon]: true,
+        [dicor]: true,
+        [pola]: true,
+        [grasy]: true,
+      });
+    } else {
+      setBtnDisabled({
+        [ccon]: false,
+        [dicor]: false,
+        [pola]: false,
+        [grasy]: false,
+      });
+    }
     setRunUseEffect(!runUseEffect);
   };
 
@@ -203,7 +316,7 @@ function Gaming(props) {
             </div>
           )}
         </div>
-        {/* <Clock format={"HH:mm:ss"} ticking={true} timezone={"Asia/Kolkata"} /> */}
+        <Clock format={"HH:mm:ss"} ticking={true} timezone={"Asia/Kolkata"} />
         <div className="d-flex justify-content-between mx-5 mb-4">
           <button
             type="button"
@@ -314,7 +427,7 @@ function Gaming(props) {
           <button
             type="button"
             className="btn btn-light btn-width me-2"
-            disabled={propsTime.type === "waiting"}
+            disabled={btnDisabled[state.selectedSlot]}
             onClick={onConfirm}
           >
             Confirm
@@ -322,10 +435,14 @@ function Gaming(props) {
           <button
             type="button"
             className="btn btn-light btn-width"
-            onClick={() => onAmtClick(0)}
-            disabled={propsTime.type === "waiting"}
+            onClick={() => {
+              onAmtClick(0);
+              onColorSelect(undefined);
+              onNumberClick(undefined);
+            }}
+            disabled={btnDisabled[state.selectedSlot]}
           >
-            Clear
+            Reset
           </button>
         </div>
         <div className="my-3 mx-auto">Individual Numbers:</div>
