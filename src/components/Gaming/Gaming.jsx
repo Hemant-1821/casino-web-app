@@ -3,7 +3,6 @@ import Rules from "./Rules/Rules";
 import CountdownTimer from "./Countdown";
 import { axiosInstance } from "../../axios";
 import { toast } from "react-toastify";
-import Clock from "react-live-clock";
 
 function Gaming(props) {
   const ccon = "CCON";
@@ -65,6 +64,10 @@ function Gaming(props) {
       toast.dark("Amount should be greater than 0");
       return;
     }
+    if (totalAmt > state.balance) {
+      toast.dark("Insufficient Balance!!");
+      return;
+    }
     await axiosInstance
       .post("/gaming/bet", {
         refNo: state.refNo,
@@ -75,12 +78,21 @@ function Gaming(props) {
         colorAmt: !!state.selectedColor ? state.amt : undefined,
         numberAmt: !!state.number ? state.amt : undefined,
       })
-      .then((res) => {
+      .then(async (res) => {
         setBtnDisabled({
           ...btnDisabled,
           [state.selectedSlot]: true,
         });
         console.log(res);
+        await axiosInstance
+          .get("/user", {
+            params: {
+              userId: localStorage.getItem("userId"),
+            },
+          })
+          .then((resp) => {
+            setState({ ...state, balance: resp.data.user.wallet.totalAmt });
+          });
       })
       .catch((e) => {
         console.log(e);
@@ -184,26 +196,30 @@ function Gaming(props) {
           };
           if (gameBol) {
             const game = resp.data.game;
-            game.CCON.forEach((room) => {
-              if (room.userId === localStorage.getItem("userId")) {
-                gameState[ccon] = true;
-              }
-            });
-            game.DICOR.forEach((room) => {
-              if (room.userId === localStorage.getItem("userId")) {
-                gameState[dicor] = true;
-              }
-            });
-            game.POLA.forEach((room) => {
-              if (room.userId === localStorage.getItem("userId")) {
-                gameState[pola] = true;
-              }
-            });
-            game.GRASY.forEach((room) => {
-              if (room.userId === localStorage.getItem("userId")) {
-                gameState[grasy] = true;
-              }
-            });
+            if (state.selectedSlot === ccon && game.CCON)
+              game.CCON.forEach((room) => {
+                if (room.userId === localStorage.getItem("userId")) {
+                  gameState[ccon] = true;
+                }
+              });
+            if (state.selectedSlot === dicor && game.DICOR)
+              game.DICOR.forEach((room) => {
+                if (room.userId === localStorage.getItem("userId")) {
+                  gameState[dicor] = true;
+                }
+              });
+            if (state.selectedSlot === pola && game.POLA)
+              game.POLA.forEach((room) => {
+                if (room.userId === localStorage.getItem("userId")) {
+                  gameState[pola] = true;
+                }
+              });
+            if (state.selectedSlot === grasy && game.GRASY)
+              game.GRASY.forEach((room) => {
+                if (room.userId === localStorage.getItem("userId")) {
+                  gameState[grasy] = true;
+                }
+              });
           }
           setBtnDisabled({ ...gameState });
         });
@@ -316,7 +332,6 @@ function Gaming(props) {
             </div>
           )}
         </div>
-        <Clock format={"HH:mm:ss"} ticking={true} timezone={"Asia/Kolkata"} />
         <div className="d-flex justify-content-between mx-5 mb-4">
           <button
             type="button"
