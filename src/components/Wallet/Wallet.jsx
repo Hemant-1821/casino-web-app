@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { axiosInstance } from "../../axios";
+import Withdraw from "./Withdraw";
 
 function loadScript(src) {
   return new Promise((resolve) => {
@@ -17,6 +19,7 @@ function loadScript(src) {
 function Wallet(props) {
   const [amt, setAmt] = React.useState(0);
   const [amtAvailable, setAmtAvailable] = React.useState(0);
+  const [fetchAmt, setFetchAmt] = useState(false);
 
   React.useEffect(() => {
     axiosInstance
@@ -28,9 +31,13 @@ function Wallet(props) {
       .then((resp) => {
         setAmtAvailable(resp.data.user.wallet.totalAmt);
       });
-  }, []);
+  }, [fetchAmt]);
 
   const displayRazorpay = async () => {
+    if (amt < 200) {
+      toast.dark("Wallet topup amount cannot be smaller than 200");
+      return;
+    }
     const orderId = await axiosInstance
       .post("/razorpay", { amt })
       .then((order) => {
@@ -129,6 +136,11 @@ function Wallet(props) {
           </div>
         </div>
       </div>
+      <Withdraw
+        amtAvailable={amtAvailable}
+        setFetchAmt={setFetchAmt}
+        fetchAmt={fetchAmt}
+      />
     </div>
   );
 }
