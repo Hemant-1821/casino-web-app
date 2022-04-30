@@ -1,11 +1,11 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { axiosInstance } from "../../../axios";
+import { toast } from "react-toastify";
 
 function Login(props) {
   const { setState: propsSetState } = props;
   const [redirect, setRedirect] = React.useState(false);
-  const [error, setError] = React.useState(false);
   const [state, setState] = React.useState({
     email: "",
     password: "",
@@ -25,12 +25,12 @@ function Login(props) {
             propsSetState(resObj.user._id);
             setRedirect(true);
           }
-          if (resObj.resCode === 404) {
-            setError(true);
+          if (resObj.resCode === 400) {
+            toast.error(resObj.errDesc);
           }
         });
     } else {
-      console.log("error occured!");
+      toast.error("Please provide email and password");
     }
   };
 
