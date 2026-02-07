@@ -1,6 +1,5 @@
 # Casimoney (Realtime casino application)
 
-About:
 Casimoney is a real-time, multi-user casino-style web application where users can place bets, trade simulated metals, and manage wallet transactions within strict, time-bound betting windows. The platform is designed to mimic real casino mechanics, ensuring synchronized participation, fairness, and controlled result declaration.
 
 The application supports JWT-based authentication, allowing users to securely register, log in, and manage their sessions. Once logged in, users can participate in betting rounds that follow a fixed cycle — a defined bet placement window (e.g., 50 seconds), followed by a lock-in period, after which results are calculated and winnings are automatically credited to the winners’ wallets.
@@ -13,7 +12,7 @@ Metal trading within the platform is simulated and controlled via a separate adm
 
 This project was developed as a client-facing solution and handed over upon completion. It served as a practical implementation of real-time systems, event-driven architecture, secure authentication, and transactional workflows in a full-stack environment.
 
-Tech Stack
+Tech Stack:
 - Frontend: ReactJS, HTML, CSS, Bootstrap
 - Backend: Node.js, Socket.IO
 - Database: MongoDB
